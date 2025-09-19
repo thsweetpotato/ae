@@ -1,134 +1,137 @@
-import React from 'react';
-import { useState } from "react";
+import { useState, React } from "react";
 
 export default function Contact() {
-  const [sent, setSent] = useState(false);
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    message: "",
+  });
 
-  const handleSubmit = (e) => {
-    e.preventDefault(); // stop refresh
-    setSent(true);
+  const [status, setStatus] = useState(null); // "success" | "error" | null
 
-    // Optional: reset confirmation after a delay
-    setTimeout(() => setSent(false), 4000);
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setStatus(null);
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (res.ok) {
+        setStatus("success");
+        setFormData({ firstName: "", lastName: "", email: "", message: "" });
+      } else {
+        setStatus("error");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      setStatus("error");
+    }
   };
 
   return (
     <section
       id="contact"
-      className="min-h-screen flex flex-col items-center justify-center bg-green-50 px-6 py-12"
+      className="min-h-screen flex flex-col items-center justify-center bg-white px-6 py-16"
     >
-      <div className="max-w-2xl w-full">
-        {/* Title */}
-        <h2 className="text-3xl font-bold text-center text-[#2E7D32] mb-2">
-          Contact Us
-        </h2>
-        <p className="text-center text-gray-600 mb-12">
-          We’d love to hear from you. Please fill out the form below.
-        </p>
+      <h2 className="text-3xl font-bold mb-8 text-[#2E7D32]">Contact Us</h2>
 
-        {/* Form */}
-        <form className="space-y-10" onSubmit={handleSubmit}>
-          {/* First + Last Name */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-            <div className="relative">
-              <label
-                htmlFor="firstName"
-                className="absolute -top-5 left-0 text-sm font-medium text-gray-700"
-              >
-                First Name <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                id="firstName"
-                required
-                placeholder="John"
-                className="w-full border-b border-gray-300 bg-transparent focus:outline-none focus:border-[#2E7D32] p-2"
-              />
-            </div>
-
-            <div className="relative">
-              <label
-                htmlFor="lastName"
-                className="absolute -top-5 left-0 text-sm font-medium text-gray-700"
-              >
-                Last Name <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                id="lastName"
-                required
-                placeholder="Doe"
-                className="w-full border-b border-gray-300 bg-transparent focus:outline-none focus:border-[#2E7D32] p-2"
-              />
-            </div>
-          </div>
-
-          {/* Email */}
-          <div className="relative">
-            <label
-              htmlFor="email"
-              className="absolute -top-5 left-0 text-sm font-medium text-gray-700"
-            >
-              Email <span className="text-red-500">*</span>
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-lg bg-white/70 backdrop-blur-sm p-8 rounded-2xl shadow-lg space-y-6 border border-[#2E7D32]/30"
+      >
+        {/* Name row (always side by side) */}
+        <div className="grid grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-[#2E7D32]">
+              First Name <span className="text-red-500">*</span>
             </label>
             <input
-              type="email"
-              id="email"
+              type="text"
+              name="firstName"
+              value={formData.firstName}
+              onChange={handleChange}
               required
-              placeholder="john@example.com"
-              className="w-full border-b border-gray-300 bg-transparent focus:outline-none focus:border-[#2E7D32] p-2"
+              className="w-full mt-1 p-2 border border-[#2E7D32]/40 rounded-lg focus:ring-2 focus:ring-[#D97706] outline-none"
             />
           </div>
-
-          {/* Phone Number */}
-          <div className="relative">
-            <label
-              htmlFor="phone"
-              className="absolute -top-5 left-0 text-sm font-medium text-gray-700"
-            >
-              Phone Number
+          <div>
+            <label className="block text-sm font-medium text-[#2E7D32]">
+              Last Name <span className="text-red-500">*</span>
             </label>
             <input
-              type="tel"
-              id="phone"
-              placeholder="+91 98765 43210"
-              className="w-full border-b border-gray-300 bg-transparent focus:outline-none focus:border-[#2E7D32] p-2"
+              type="text"
+              name="lastName"
+              value={formData.lastName}
+              onChange={handleChange}
+              required
+              className="w-full mt-1 p-2 border border-[#2E7D32]/40 rounded-lg focus:ring-2 focus:ring-[#D97706] outline-none"
             />
           </div>
+        </div>
 
-          {/* Message */}
-          <div className="relative">
-            <label
-              htmlFor="message"
-              className="absolute -top-5 left-0 text-sm font-medium text-gray-700"
-            >
-              Message
-            </label>
-            <textarea
-              id="message"
-              rows="4"
-              placeholder="Type your message..."
-              className="w-full border-b border-gray-300 bg-transparent focus:outline-none focus:border-[#2E7D32] p-2 resize-none"
-            ></textarea>
-          </div>
+        {/* Email */}
+        <div>
+          <label className="block text-sm font-medium text-[#2E7D32]">
+            Email <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            className="w-full mt-1 p-2 border border-[#2E7D32]/40 rounded-lg focus:ring-2 focus:ring-[#D97706] outline-none"
+          />
+        </div>
 
-          {/* Submit or Confirmation */}
-          <div className="flex justify-center">
-            {sent ? (
-              <p className="text-green-700 font-semibold bg-green-100 px-6 py-3 rounded-full shadow-md">
-                Message Sent!
-              </p>
-            ) : (
-              <button
-                type="submit"
-                className="bg-[#2E7D32] cursor-pointer text-white font-semibold px-8 py-3 rounded-full shadow-md hover:bg-green-700 transition-colors"
-              >
-                Send Message
-              </button>
-            )}
-          </div>
-        </form>
-      </div>
+        {/* Message */}
+        <div>
+          <label className="block text-sm font-medium text-[#2E7D32]">
+            Message
+          </label>
+          <textarea
+            name="message"
+            value={formData.message}
+            onChange={handleChange}
+            rows="4"
+            className="w-full mt-1 p-2 border resize-none border-[#2E7D32]/40 rounded-lg focus:ring-2 focus:ring-[#D97706] outline-none"
+          ></textarea>
+        </div>
+
+        {/* Submit */}
+        <div className="flex justify-center">
+        <button
+          type="submit"
+          className="cursor-pointer border-1 border-[#2E7D32] text-[#2E7D32] py-1 px-4 rounded-lg hover:bg-green-200 hover:border-[#D97706] transition"
+        >
+          Send Message
+        </button>
+        </div>
+
+        {/* Status Messages */}
+        {status === "success" && (
+          <p className="text-green-600 font-medium mt-4 text-center">
+            ✅ Sent Successfully!
+          </p>
+        )}
+        {status === "error" && (
+          <p className="text-red-600 font-medium mt-4 text-center">
+            ❌ Something went wrong. Please try again.
+          </p>
+        )}
+      </form>
     </section>
   );
 }
