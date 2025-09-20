@@ -12,19 +12,21 @@ function Contact() {
 
     emailjs
       .sendForm(
-        "service_gmail",     // from EmailJS
-        "contact_form",    // from EmailJS
+        "service_gmail",   // your service ID
+        "contact_form",    // your template ID
         formRef.current,
-        "u8u-UjwSjxOaMp_IL"      // from EmailJS
+        "u8u-UjwSjxOaMp_IL" // your public key
       )
       .then(
         () => {
           setStatus("Sent Successfully!");
-          formRef.current.reset(); // clear form
+          setTimeout(() => setStatus(""), 3000);
+          formRef.current.reset();
         },
         (error) => {
           console.error(error);
           setStatus("❌ Failed to send. Try again.");
+          setTimeout(() => setStatus(""), 3000);
         }
       );
   };
@@ -34,65 +36,58 @@ function Contact() {
       <form
         ref={formRef}
         onSubmit={sendEmail}
-        className="bg-white shadow-lg rounded-xl p-6 w-full max-w-lg space-y-4"
+        className="bg-white border border-[#2E7D32]/20 rounded-2xl p-8 w-full max-w-lg space-y-6"
       >
-        <h2 className="text-2xl font-bold text-[#2E7D32] text-center">Contact Us</h2>
-        <input type="hidden" name="time" value={date}></input>
-        <div className="flex space-x-2">
-          <div className="w-1/2">
-            <label className="text-sm font-medium text-gray-700">
-              First Name <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              name="first_name"
-              required
-              className="w-full border border-green-700 rounded-lg p-2 text-sm"
-            />
-          </div>
-          <div className="w-1/2">
-            <label className="text-sm font-medium text-gray-700">
-              Last Name <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              name="last_name"
-              required
-              className="w-full border border-green-700 rounded-lg p-2 text-sm"
-            />
-          </div>
-        </div>
+        <h2 className="text-2xl font-semibold text-[#2E7D32] text-center">Contact Us</h2>
 
-        <div>
-          <label className="text-sm font-medium text-gray-700">
-            Email <span className="text-red-500">*</span>
-          </label>
+        <input type="hidden" name="time" value={date.toISOString()} />
+
+        {/* First + Last name */}
+        <div className="flex space-x-3">
           <input
-            type="email"
-            name="email"
+            type="text"
+            name="first_name"
+            placeholder="First Name *"
             required
-            className="w-full border border-green-700 rounded-lg p-2 text-sm"
+            className="w-1/2 border border-[#2E7D32] rounded-lg p-2 text-sm focus:outline-none focus:border-amber-600"
+          />
+          <input
+            type="text"
+            name="last_name"
+            placeholder="Last Name *"
+            required
+            className="w-1/2 border border-[#2E7D32] rounded-lg p-2 text-sm focus:outline-none focus:border-amber-600"
           />
         </div>
 
-        <div>
-          <label className="text-sm font-medium text-gray-700">Message</label>
-          <textarea
-            name="message"
-            rows="4"
-            className="w-full border resize-none border-green-700 rounded-lg p-2 text-sm"
-          ></textarea>
-        </div>
+        {/* Email */}
+        <input
+          type="email"
+          name="email"
+          placeholder="Email *"
+          required
+          className="w-full border border-[#2E7D32] rounded-lg p-2 text-sm focus:outline-none focus:border-amber-600"
+        />
 
+        {/* Message */}
+        <textarea
+          name="message"
+          rows="4"
+          placeholder="Your Message"
+          className="w-full border border-[#2E7D32] rounded-lg p-2 text-sm resize-none focus:outline-none focus:border-amber-600"
+        ></textarea>
+
+        {/* Submit */}
         <div className="flex justify-center">
           <button
             type="submit"
-            className="px-4 py-2 border border-[#2E7D32] text-[#2E7D32] rounded-lg hover:bg-[#2E7D32] hover:text-white text-sm"
+            className="px-6 py-2 rounded-full border border-[#2E7D32] text-[#2E7D32] hover:bg-[#2E7D32] hover:text-white text-sm transition-all"
           >
-            Send Message
+            Send
           </button>
         </div>
 
+        {/* Status */}
         {status && (
           <p className="text-center text-sm mt-2 text-gray-600">{status}</p>
         )}
