@@ -1,137 +1,104 @@
-import { useState, React } from "react";
+import { useRef, useState } from "react";
+import emailjs from "@emailjs/browser";
 
-export default function Contact() {
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    message: "",
-  });
+function Contact() {
+  const formRef = useRef();
+  const [status, setStatus] = useState("");
+  const date = new Date();
 
-  const [status, setStatus] = useState(null); // "success" | "error" | null
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleSubmit = async (e) => {
+  const sendEmail = (e) => {
     e.preventDefault();
-    setStatus(null);
+    setStatus("Sending...");
 
-    try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      if (res.ok) {
-        setStatus("success");
-        setFormData({ firstName: "", lastName: "", email: "", message: "" });
-      } else {
-        setStatus("error");
-      }
-    } catch (error) {
-      console.error("Error:", error);
-      setStatus("error");
-    }
+    emailjs
+      .sendForm(
+        "service_gmail",     // from EmailJS
+        "contact_form",    // from EmailJS
+        formRef.current,
+        "u8u-UjwSjxOaMp_IL"      // from EmailJS
+      )
+      .then(
+        () => {
+          setStatus("Sent Successfully!");
+          formRef.current.reset(); // clear form
+        },
+        (error) => {
+          console.error(error);
+          setStatus("❌ Failed to send. Try again.");
+        }
+      );
   };
 
   return (
-    <section
-      id="contact"
-      className="min-h-screen flex flex-col items-center justify-center bg-white px-6 py-16"
-    >
-      <h2 className="text-3xl font-bold mb-8 text-[#2E7D32]">Contact Us</h2>
-
+    <div className="min-h-screen flex items-center justify-center bg-[#f5f5f5]">
       <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-lg bg-white/70 backdrop-blur-sm p-8 rounded-2xl shadow-lg space-y-6 border border-[#2E7D32]/30"
+        ref={formRef}
+        onSubmit={sendEmail}
+        className="bg-white shadow-lg rounded-xl p-6 w-full max-w-lg space-y-4"
       >
-        {/* Name row (always side by side) */}
-        <div className="grid grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-[#2E7D32]">
+        <h2 className="text-2xl font-bold text-[#2E7D32] text-center">Contact Us</h2>
+        <input type="hidden" name="time" value={date}></input>
+        <div className="flex space-x-2">
+          <div className="w-1/2">
+            <label className="text-sm font-medium text-gray-700">
               First Name <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
-              name="firstName"
-              value={formData.firstName}
-              onChange={handleChange}
+              name="first_name"
               required
-              className="w-full mt-1 p-2 border border-[#2E7D32]/40 rounded-lg focus:ring-2 focus:ring-[#D97706] outline-none"
+              className="w-full border border-green-700 rounded-lg p-2 text-sm"
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-[#2E7D32]">
+          <div className="w-1/2">
+            <label className="text-sm font-medium text-gray-700">
               Last Name <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
-              name="lastName"
-              value={formData.lastName}
-              onChange={handleChange}
+              name="last_name"
               required
-              className="w-full mt-1 p-2 border border-[#2E7D32]/40 rounded-lg focus:ring-2 focus:ring-[#D97706] outline-none"
+              className="w-full border border-green-700 rounded-lg p-2 text-sm"
             />
           </div>
         </div>
 
-        {/* Email */}
         <div>
-          <label className="block text-sm font-medium text-[#2E7D32]">
+          <label className="text-sm font-medium text-gray-700">
             Email <span className="text-red-500">*</span>
           </label>
           <input
             type="email"
             name="email"
-            value={formData.email}
-            onChange={handleChange}
             required
-            className="w-full mt-1 p-2 border border-[#2E7D32]/40 rounded-lg focus:ring-2 focus:ring-[#D97706] outline-none"
+            className="w-full border border-green-700 rounded-lg p-2 text-sm"
           />
         </div>
 
-        {/* Message */}
         <div>
-          <label className="block text-sm font-medium text-[#2E7D32]">
-            Message
-          </label>
+          <label className="text-sm font-medium text-gray-700">Message</label>
           <textarea
             name="message"
-            value={formData.message}
-            onChange={handleChange}
             rows="4"
-            className="w-full mt-1 p-2 border resize-none border-[#2E7D32]/40 rounded-lg focus:ring-2 focus:ring-[#D97706] outline-none"
+            className="w-full border resize-none border-green-700 rounded-lg p-2 text-sm"
           ></textarea>
         </div>
 
-        {/* Submit */}
         <div className="flex justify-center">
-        <button
-          type="submit"
-          className="cursor-pointer border-1 border-[#2E7D32] text-[#2E7D32] py-1 px-4 rounded-lg hover:bg-green-200 hover:border-[#D97706] transition"
-        >
-          Send Message
-        </button>
+          <button
+            type="submit"
+            className="px-4 py-2 border border-[#2E7D32] text-[#2E7D32] rounded-lg hover:bg-[#2E7D32] hover:text-white text-sm"
+          >
+            Send Message
+          </button>
         </div>
 
-        {/* Status Messages */}
-        {status === "success" && (
-          <p className="text-green-600 font-medium mt-4 text-center">
-            ✅ Sent Successfully!
-          </p>
-        )}
-        {status === "error" && (
-          <p className="text-red-600 font-medium mt-4 text-center">
-            ❌ Something went wrong. Please try again.
-          </p>
+        {status && (
+          <p className="text-center text-sm mt-2 text-gray-600">{status}</p>
         )}
       </form>
-    </section>
+    </div>
   );
 }
+
+export default Contact;
