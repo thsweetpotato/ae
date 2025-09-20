@@ -30,7 +30,7 @@ function Contact() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f5f5f5]">
+    <div id="contact" className="min-h-screen flex items-center justify-center bg-[#f5f5f5]">
       <form
         ref={formRef}
         onSubmit={sendEmail}
